@@ -15,3 +15,4 @@ use Illuminate\Support\Facades\Route;
 
 // 用户登录
 Route::post('/user/login', 'User@login')->name('login');
+Route::get('/user/info', 'User@info')->name('userInfo');

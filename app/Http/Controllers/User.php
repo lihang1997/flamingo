@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Flamingo\Controller;
+use App\Http\Flamingo\Token;
 use Illuminate\Http\Request;
 
 class User extends Controller{
@@ -21,5 +22,19 @@ class User extends Controller{
             }
         }
         return $this->toApiMessage();
+    }
+
+    public function info(Request $request){
+        $requestToken = $request->header('logintoken');
+        if ( ! empty($requestToken)) {
+            $info = Token::getUserInfoByToken($requestToken);
+            $info = [
+                'systemName' => config('app.name'),
+                'name' => $info['name'],
+            ];
+        } else {
+            $info = [];
+        }
+        return $this->toApiMessage($info);
     }
 }

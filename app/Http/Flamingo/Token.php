@@ -2,9 +2,11 @@
 
 namespace App\Http\Flamingo;
 
+use Illuminate\Log\Logger;
+
 trait Token{
     
-    static protected $expire = 30;
+    static protected $expire = 300;
 
     public static function makeToken($request){
         $token = '';
@@ -14,20 +16,29 @@ trait Token{
             $unique = uniqid();
             $expire = time() + self::$expire;
             $name = $request->input('username');
-            $userInfo = [
-                'ua' => $ua,
-                'ip' => $ip,
-                'unique' => $unique,
-                'expire' => $expire,
-                'name' => $name,
-            ];
-            $userInfo = json_encode($userInfo);
-            $token = encrypt($userInfo);
+            if (empty($name)) {
+                $requestToken = $request->header('logintoken');
+                if ( ! empty($requestToken)) {
+                    $user = self::getUserInfoByToken($requestToken);
+                    $name = $user['name'] ?? '';
+                }
+            }
+            if ( ! empty($name)) {
+                $userInfo = [
+                    'ua' => $ua,
+                    'ip' => $ip,
+                    'unique' => $unique,
+                    'expire' => $expire,
+                    'name' => $name,
+                ];
+                $userInfo = json_encode($userInfo);
+                $token = encrypt($userInfo);
+            }
         }
         return $token;
     }
 
-    public static function getUserInfoByToken($secret, $column = NULL){
+    public static function getUserInfoByToken($secret){
         $info = decrypt($secret);
         return json_decode($info, TRUE);
     }
@@ -45,6 +56,14 @@ trait Token{
                 $users = config('users');
                 $result = array_key_exists($userInfo['name'], $users);
             }
+            $log = [
+                'userInfo' => $userInfo,
+                'ua' => $ua,
+                'ip' => $ip,
+                'time' => time(),
+                'users' => $users,
+            ];
+            Logger()->notice($log);
         }
         return $result;
     }

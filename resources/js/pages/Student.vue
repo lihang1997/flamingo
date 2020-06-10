@@ -1,5 +1,9 @@
 <template>
-    <MainFrame></MainFrame>
+    <MainFrame>
+        <div>
+            <el-input></el-input>
+        </div>
+    </MainFrame>
 </template>
 
 <script>

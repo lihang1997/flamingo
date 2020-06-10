@@ -16,7 +16,8 @@
                 </el-form-item>
                 <el-form-item prop='password'>
                     <el-input type='password' 
-                        v-model='user.password' 
+                        v-model='user.password'
+                        @keyup.enter.native='loginAction'
                         placeholder='密码'
                     ></el-input>
                 </el-form-item>

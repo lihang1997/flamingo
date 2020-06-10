@@ -3,7 +3,8 @@
  */
 
 const urls = {
-    login: '/api/user/login'
+    login: '/api/user/login',
+    userInfo: '/api/user/info',
 }
 
 export default urls
