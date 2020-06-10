@@ -12,6 +12,7 @@
                     <el-input type='text'
                         v-model='user.username' 
                         placeholder='用户名'
+                        ref='username'
                     ></el-input>
                 </el-form-item>
                 <el-form-item prop='password'>
@@ -56,6 +57,11 @@
                     ]
                 }
             }
+        },
+        created () {
+            this.$nextTick(() => {
+                this.$refs.username.focus();
+            })
         },
         methods: {
             loginAction () {
