@@ -1,14 +1,16 @@
 <template>
     <MainFrame>
-        <div>
+        <el-row>
             <el-input></el-input>
-        </div>
+            <el-input></el-input>
+        </el-row>
     </MainFrame>
 </template>
 
 <script>
     import MainFrame from '../components/MainFrame'
     export default {
+        name: 'feeModify',
         data () {
             return {
 

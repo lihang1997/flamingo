@@ -65,7 +65,7 @@
                         axios.post(service.login, this.user).then((response) => {
                             response = response.data
                             if (-response.errorCode === 0) {
-                                this.$router.push({path: '/student'})
+                                this.$router.push({name: 'feeModify'})
                             } else {
                                 this.$message({type: 'error', message: response.errorMessage})
                             }

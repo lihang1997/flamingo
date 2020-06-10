@@ -1,6 +1,6 @@
 <template>
-    <div class="content">
-        <div class='header'>
+    <el-container>
+        <el-header>
             <div class='system'>{{systemName}}</div>
             <div class='user'>
                 <el-dropdown>
@@ -12,10 +12,14 @@
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
-        </div>
-        <div class='main'>
-            <div class='sidebar'>
-                <el-menu>
+        </el-header>
+        <el-container>
+            <el-aside width='200px'>
+                <el-menu
+                    :default-openeds='openeds'
+                    :default-active='active'
+                    :router='true'
+                >
                     <el-submenu index="student">
                         <template slot="title">
                             <i class="el-icon-user"></i>
@@ -28,18 +32,16 @@
                             <i class="el-icon-lock"></i>
                             <span>收费信息管理</span>
                         </template>
-                        <el-menu-item index="fee-find">收费信息</el-menu-item>
-                        <el-menu-item index="fee-list">收费列表</el-menu-item>
+                        <el-menu-item index="fee-modify">收费变更</el-menu-item>
+                        <el-menu-item index="fee-find">收费查询</el-menu-item>
                     </el-submenu>
                 </el-menu>
-            </div>
-            <div class='body'>
-                <div class='child'>
-                    <slot></slot>
-                </div>
-            </div>
-        </div>
-    </div>
+            </el-aside>
+            <el-main>
+                <slot></slot>
+            </el-main>
+        </el-container>
+    </el-container>
 </template>
 
 <script>
@@ -47,6 +49,8 @@
     export default {
         data() {
             return {
+                openeds: ['student', 'fee'],
+                active: 'fee-modify',
                 systemName: '',
                 user: {
                     name: '',
@@ -66,17 +70,12 @@
 </script>
 
 <style lang='scss' scope>
-.content {
-    height: calc(100vh);
-    display: flex;
-    flex-direction: column;
-    .header{
-        width: 100%;
-        height: 60px;
+    .el-header{
         display: flex;
         flex-direction: row;
         justify-content:  space-between;
         border-bottom: solid 1px #e6e6e6;
+        line-height: 60px;
         .system{
             min-width: 200px;
             line-height: 60px;
@@ -88,32 +87,17 @@
             width: 160px;
             line-height: 60px;
             align-self: flex-end;
-            padding-right: 40px;
+            padding-right: 20px;
             .dropdown-link{
                 font-size: 16px;
             }
         }
     }
-    .main{
-        width: 100%;
-        flex: 1;
-        display: flex;
-        .sidebar {
-            min-width: 200px;
-            height: 100%;
-            float: left;
-            border-right: solid 1px #e6e6e6;
-        }
-        .body{
-            align-self: flex-end;
-            width: 100%;
-            height: 100%;
-            .child{
-                width: calc(100% - 32px);
-                height: calc(100% - 32px);
-                margin: 16px;
-            }
-        }
+    .el-aside{
+        height: calc(100vh - 60px);
+        border-right: solid 1px #e6e6e6;
     }
-}
+    .el-main{
+        height: calc(100vh - 60px);
+    }
 </style>
