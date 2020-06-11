@@ -15,6 +15,14 @@ window.Vue = require('vue')
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
+/**
+ * Replace vue-router push method to avoid router error.
+ */
+const rawRouterPush = VueRouter.prototype.push
+VueRouter.prototype.push = function(to) {
+    return rawRouterPush.call(this, to).catch(error => error)
+}
+
 /*
  * Then we will load router configurations, and create router object.
  */

@@ -19,6 +19,7 @@
                     :default-openeds='openeds'
                     :default-active='active'
                     :router='true'
+                    @select='(key) => {active = key}'
                 >
                     <el-submenu index="student">
                         <template slot="title">
@@ -32,7 +33,7 @@
                             <i class="el-icon-lock"></i>
                             <span>收费信息管理</span>
                         </template>
-                        <el-menu-item index="fee-modify">收费变更</el-menu-item>
+                        <el-menu-item index="fee-modify">收费增改</el-menu-item>
                         <el-menu-item index="fee-find">收费查询</el-menu-item>
                     </el-submenu>
                 </el-menu>
@@ -50,14 +51,15 @@
         data() {
             return {
                 openeds: ['student', 'fee'],
-                active: 'fee-modify',
+                active: '',
                 systemName: '',
                 user: {
                     name: '',
                 }
             }
         },
-        mounted () {
+        created () {
+            this.active = this.$route.path.replace('/', '')
             axios.get(service.userInfo).then((response) => {
                 let responseBody = response.data || {}
                 if (responseBody && -responseBody.errorCode === 0) {
