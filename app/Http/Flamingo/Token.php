@@ -2,11 +2,11 @@
 
 namespace App\Http\Flamingo;
 
-use Illuminate\Log\Logger;
-
 trait Token{
     
-    static protected $expire = 300;
+    static public $loginName = '';
+
+    static protected $expire = 3000;
 
     public static function makeToken($request){
         $token = '';
@@ -56,14 +56,7 @@ trait Token{
                 $users = config('users');
                 $result = array_key_exists($userInfo['name'], $users);
             }
-            $log = [
-                'userInfo' => $userInfo,
-                'ua' => $ua,
-                'ip' => $ip,
-                'time' => time(),
-                'users' => $users,
-            ];
-            Logger()->notice($log);
+            self::$loginName = $userInfo['name'];
         }
         return $result;
     }

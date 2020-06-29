@@ -6,7 +6,7 @@
             ref='login'
             label-position='left' 
             label-width='0px'
-            class='login login-page'>
+            class='login-page'>
                 <h3 class='title'>Flamingo</h3>
                 <el-form-item prop='username'>
                     <el-input type='text'
@@ -23,7 +23,7 @@
                     ></el-input>
                 </el-form-item>
                 <el-form-item style='width:100%;'>
-                    <el-button type='primary' style='width:100%;' @click='loginAction' :loading='logining'>登&nbsp;&nbsp;录</el-button>
+                    <el-button type='primary' style='width:100%;' @click='loginAction' :loading='logining'>登 录</el-button>
                 </el-form-item>
         </el-form>
     </div>
@@ -71,7 +71,7 @@
                         axios.post(service.login, this.user).then((response) => {
                             response = response.data
                             if (-response.errorCode === 0) {
-                                this.$router.push({name: 'feeModify'})
+                                this.$router.push({name: 'list'})
                             } else {
                                 this.$message({type: 'error', message: response.errorMessage})
                             }
@@ -105,8 +105,7 @@
         border: 1px solid #eaeaea;
         box-shadow: 0 0 24px #cac6c6;
     }
-    label.el-checkbox.rememberme {
-        margin: 0px 0px 16px;
-        text-align: left;
+    .title{
+        text-align: center;
     }
 </style>

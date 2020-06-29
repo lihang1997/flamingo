@@ -2,8 +2,9 @@
  * This file is router configurations.
  */
 import Login from './pages/Login'
+import MainFrame from './components/MainFrame'
 import StudentList from './pages/StudentList'
-import FeeModify from './pages/FeeModify'
+import FeeDetail from './pages/FeeDetail'
 import FeeFind from './pages/FeeFind'
 
 const routes = [
@@ -12,17 +13,33 @@ const routes = [
         'name': 'login',
         'component': Login
     }, {
-        'path': '/student-list',
-        'name': 'studentList',
-        'component': StudentList
+        'path': '/student',
+        'name': 'student',
+        'hidden': true,
+        'component': MainFrame,
+        'children': [
+            {
+                'path': 'list',
+                'name': 'list',
+                'component': StudentList,
+            }
+        ]
     }, {
-        'path': '/fee-modify',
-        'name': 'feeModify',
-        'component': FeeModify,
-    }, {
-        'path': '/fee-find',
-        'name': 'feeFind',
-        'component': FeeFind,
+        'path': '/fee',
+        'name' : 'fee',
+        'hidden': true,
+        'component': MainFrame,
+        'children': [
+            {
+                'path': 'detail',
+                'name': 'detail',
+                'component': FeeDetail
+            }, {
+                'path': 'find',
+                'name': 'find',
+                'component': FeeFind
+            }
+        ]
     }
 ]
 

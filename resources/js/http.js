@@ -25,7 +25,7 @@ window.axios.interceptors.response.use(
         return response
     },
     error => {
-        window.location.href = axios.apiHost
+        //window.location.href = axios.apiHost
         return Promise.reject(error) 
     }
 )
