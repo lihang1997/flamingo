@@ -11,8 +11,10 @@ class Students extends Controller{
 
     public function search(Request $request){
         $name = $request->get('name');
+        $grade = $request->get('grade') ?? '';
+        $status = $request->get('status');
         $service = new ServiceStudents();
-        $students = $service->getStudentList($name);
+        $students = $service->getStudentList($name, $grade, $status);
         return $this->toApiMessage($students);
     }
 

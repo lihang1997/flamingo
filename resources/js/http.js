@@ -25,7 +25,12 @@ window.axios.interceptors.response.use(
         return response
     },
     error => {
-        //window.location.href = axios.apiHost
+        const httpCode = error.response.status
+        if (httpCode === 403) {
+            window.location.href = axios.apiHost
+        } else {
+            console.log('发生了未知的错误.')
+        }
         return Promise.reject(error) 
     }
 )

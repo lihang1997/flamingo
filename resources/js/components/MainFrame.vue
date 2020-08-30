@@ -20,7 +20,7 @@
             </div>
         </el-header>
         <el-container>
-            <el-aside width='200px'>
+            <el-aside width='201px'>
                 <el-menu
                     :default-openeds='openeds'
                     :default-active='active'
@@ -123,6 +123,9 @@
     .el-aside{
         height: calc(100vh - 60px);
         border-right: solid 1px #e6e6e6;
+        .el-menu{
+            border-right-width: 0;
+        }
     }
     .el-main{
         height: calc(100vh - 60px);

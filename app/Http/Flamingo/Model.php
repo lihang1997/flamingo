@@ -25,6 +25,12 @@ class Model extends BaseModel{
         return $result;
     }
 
+    public function switchTable($table){
+        if ( ! empty($table) && is_string($table)) {
+            $this->table = $table;
+        }
+    }
+
     protected function getDao(){
         return DB::table($this->table);
     }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-row>
-            <el-col :span='6'>
+            <el-col :span='16'>
                 <el-form ref='conditionForm' :model='condition' label-width='40px' inline size='small'>
                     <el-form-item label='姓名'>
                         <el-input 
@@ -12,11 +12,27 @@
                         </el-input>
                     </el-form-item>
                     <el-form-item>
+                        <el-select v-model='condition.grade' clearable placeholder='选择年级(可不选)' style='width: 180px'>
+                            <el-option 
+                            v-for='item in gradeList'
+                            :key='item.key'
+                            :value='item.key'
+                            :label='item.value'>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-select v-model='condition.status' clearable placeholder='数据状态.' style='width: 120px'>
+                            <el-option key='0' value='0' label='有效'></el-option>
+                            <el-option key='1' value='1' label='已删除'></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
                         <el-button type='primary' plain @click='search'>搜索</el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
-            <el-col :span='2' :offset='16'>
+            <el-col :span='2' :offset='6'>
                 <el-button size='small' type='danger' plain @click='isShowCreateUser = true'>新增学生信息</el-button>
             </el-col>
         </el-row>
@@ -28,6 +44,7 @@
                 size='mini'
                 highlight-current-row
                 :cell-style='witchStyle'
+                :height="height"
             >
                 <el-table-column
                     prop='id'
@@ -214,17 +231,68 @@
         </el-dialog>
 
         <el-dialog
+            :close-on-click-modal='false'
             :title='feeTitle'
             :visible.sync='isShowIncomeFee'
             width="60%">
             <el-form :model='income' ref='incomeFee' label-width='80px' size='mini'>
+                <el-form-item label='收费明细'>
+                    <el-select 
+                        v-model="income.fees"
+                        multiple
+                        clearable
+                        filterable
+                        placeholder='请选择收费的明细.'
+                        :loading='isLoadingFeeDetail'
+                        style='min-width: 90%'
+                        >
+                        <el-option
+                            v-for='item in feeDetailList'
+                            :key='item.key'
+                            :value='item.key'
+                            :label='item.label'
+                        >
+                            <span style="float: left">{{ item.label }}</span>
+                            <span style="padding-right: 16px; float: right; color: #8492a6; font-size: 13px;">{{ item.fee + '元'}}</span>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label='费用总计'>
+                    <el-row>
+                        <el-col :span='8' style='padding-right: 8px'>
+                            <el-input v-model='income.real' placeholder='实际收费金额.'>
+                                <template slot='prepend'>实</template>
+                                <template slot='append'>元</template>
+                            </el-input>
+                        </el-col>
+                        <el-col :span='8'>
+                            <el-input v-model='income.total' disabled placeholder='应该收费金额.'>
+                                <template slot='prepend'>应</template>
+                                <template slot='append'>元</template>
+                            </el-input>
+                        </el-col>
+                    </el-row>
+                </el-form-item>
                 <el-form-item label='备注信息'>
-                    <el-input type='textarea' v-model='updateUser.remark' placeholder='备注信息.' style='max-width: 95%'></el-input>
+                    <el-input type='textarea' v-model='income.remark' placeholder='如果实际收款金额与应收金额不同，需要填写备注原因.' style='max-width: 95%'></el-input>
+                </el-form-item>
+                <el-form-item label='需要收据'>
+                    <el-checkbox v-model='income.invoice'> 需要打印收据 </el-checkbox>
                 </el-form-item>
             </el-form>
             <div slot='footer'>
                 <el-button size='small' plain @click='isShowIncomeFee = false'>取 消</el-button>
-                <el-button size='small' type='success' plain @click=incomeFee>提 交</el-button>
+                <el-popconfirm
+                    confirmButtonText='确定已经收款'
+                    cancelButtonText='还没有收款'
+                    confirmButtonType='danger'
+                    cancelButtonType='info'
+                    @onConfirm='confirmIncome'
+                    icon="el-icon-info"
+                    iconColor="red"
+                    :title="feeTips">
+                    <el-button slot='reference' size='small' type='success' plain>提 交</el-button>
+                </el-popconfirm>
             </div>
         </el-dialog>
     </div>
@@ -241,7 +309,9 @@
                 isShowIncomeFee: false,
                 feeTitle: '',
                 condition: {
-                    name: ''
+                    name: '',
+                    grade: '',
+                    status: ''
                 },
                 filter: '',
                 user: {
@@ -261,12 +331,20 @@
                     status: '',
                 },
                 income: {
-                    name: '',
-                    month: [],
+                    fees: [],
                     total: '',
+                    real: '',
+                    remark: '',
+                    invoice: true,
                 },
                 gradeList: [],
-                studentList: []
+                studentList: [],
+                height: window.screen.height - 260,
+                isLoadingFeeDetail: false,
+                feeDetailList: [],
+                clazz: {},
+                feeTips: '别瞎点，认真点记录收款金额~',
+                feeStudent: {}
             }
         },
         created () {
@@ -278,10 +356,22 @@
             }).then(()=> {
                 this.search()
             })
+            axios.get(service.class).then((response) => {
+                const classResponse = response.data
+                if (-classResponse.errorCode === 0) {
+                    this.clazz = _.keyBy(classResponse.body, 'key')
+                } else {
+                    this.$message.error(classResponse.errorMessage)
+                }
+            })
+            this.condition.status = '0'
         },
         methods: {
             search () {
-                axios.get(service.searchStudent + '?' + 'name=' + this.condition.name).then((response) => {
+                let query = 'name=' + this.condition.name
+                query += '&grade=' + this.condition.grade
+                query += '&status=' + this.condition.status
+                axios.get(service.searchStudent + '?' + query).then((response) => {
                     const responseBody = response.data
                     if (-responseBody.errorCode === 0) {
                         this.studentList = responseBody.body
@@ -397,14 +487,104 @@
                 })
             },
             incomeFee (row) {
+
+                this.feeStudent = row
+
+                this.isLoadingFeeDetail = true
+
+                this.income.fees = ''
+                this.income.real = ''
+                this.income.total = ''
+                this.income.remark = ''
+                this.income.invoice = true
+
+                this.feeDetailList = []
+
+                const parameters = {
+                    grade: row.grade,
+                    status: '0'
+                }
+                axios.post(service.feeSearch, parameters).then((response) => {
+                    const responseBody = response.data
+                    if (-responseBody.errorCode === 0) {
+                        responseBody.body.map((item) => {
+                            let tmpInfo = item.name.split('_')
+                            let title = this.clazz[tmpInfo[1]].value
+                            let label = item.key + '[' + title + ']'
+                            this.feeDetailList.push({
+                                key: item.id,
+                                label: label,
+                                fee: +item.value,
+                                month: item.key
+                            })
+                        })
+                    } else {
+                        this.$message.error(responseBody.errorMessage)
+                    }
+                    this.isLoadingFeeDetail = false
+                })
                 this.isShowIncomeFee = true
                 const gradeInfo = _.filter(this.gradeList, (item) => {
                     return item.key === row.grade
                 })
                 const gradeName = gradeInfo[0].value
                 this.feeTitle = row.name + ' ' + gradeName + ' 缴费信息'
+            },
+            confirmIncome () {
+                if (this.income.fees.length === 0) {
+                    this.$message.error('请选择费用明细信息.')
+                    return false
+                }
+                if ( ! /^\d+$/.test(this.income.real)) {
+                    this.$message.error('实际收费金额格式不是数值,核对正确后重新提交.')
+                    return false
+                }
+                let total = +this.income.total.replace(/,/g, '')
+                if (this.income.real !== total && this.income.remark === '') {
+                    this.$message.error('实际收款金额与应收金额不同，请填写备注原因～')
+                    return false
+                }
+                const parameters = {
+                    student: this.feeStudent,
+                    income: this.income,
+                    other: {
+                        'gradeName': ((grade) => {
+                            const gradeInfo = _.keyBy(this.gradeList, 'key')
+                            return gradeInfo[grade].value
+                        })(this.feeStudent.grade)
+                    }
+                }
+                axios.post(service.incomeAdd, parameters).then((response) => {
+                    const responseBody = response.data
+                    if (-responseBody.errorCode === 0) {
+                        this.$message.success('添加成功～')
+                        this.isShowIncomeFee = false
+                    } else {
+                        this.$message.error(responseBody.errorMessage)
+                    }
+                })
             }
         },
+        watch: {
+            'income.fees': function(newValue, oldValue) {
+                this.income.real = ''
+                this.income.total = ''
+                if (newValue.length > 0) {
+                    this.income.real = _.sumBy(this.feeDetailList.filter((current) => {
+                        return newValue.indexOf(current.key) !== -1
+                    }), 'fee')
+                    this.income.total = this.income.real.toLocaleString()
+                }
+            },
+            'income.real': function(newValue) {
+                let total = +this.income.total.replace(/,/g, '')
+                if (this.income.real !== total) {
+                    this.feeTips = '实际收款金额与应收金额有差异请确认已备注好原因，请认真核对收款金额，并且确认已经收款~'
+                } else {
+                    this.feeTips = '请认真核对收款金额，并且确认已经收款~'
+                }
+            }
+        }
     }
 </script>
 

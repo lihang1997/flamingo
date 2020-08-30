@@ -8,8 +8,16 @@ class Students extends Model{
 
     protected $table = 'students';
 
-    public function getStudentList($name){
-        $where = [['name', 'like', '%' . $name . '%']];
+    public function getStudentList($name, $grade, $status){
+        $where = [
+            ['name', 'like', '%' . $name . '%'],
+        ];
+        if ( ! empty($grade)) {
+            $where[] = ['grade', '=', $grade];
+        }
+        if (in_array($status, ['0', '1'])) {
+            $where[] = ['status', '=', $status];
+        }
         $result = $this->getDao()->where($where)->get()->toArray();
         if ( ! is_array($result)) {
             $result = [];
