@@ -526,6 +526,7 @@
                             }
                         }
                         this.currentEditRow = {}
+                        this.isShowFeeAdd = false
                     } else {
                         this.$message.error(responseBody.errorMessage)
                     }

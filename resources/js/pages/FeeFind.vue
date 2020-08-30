@@ -533,6 +533,7 @@
                     const responseBody = response.data
                     if (-responseBody.errorCode === 0) {
                         this.$message.success('修改成功')
+                        this.isShowUpdateDialog = false
                     } else {
                         this.$message.error(responseBody.errorMessage)
                     }
